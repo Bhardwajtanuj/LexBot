@@ -1,12 +1,10 @@
-"""
-utils/web_search.py
-Real-time web search via Serper.dev (Google Search API).
-Falls back gracefully if the key is missing.
-"""
+# utils/web_search.py
+# serper.dev gives 2500 free searches/month which is fine for a demo
+# if the key isn't set, search just silently returns nothing
 
 import logging
 import requests
-from config.config import SERPER_API_KEY
+from config.config import get_serper_key
 
 logger = logging.getLogger(__name__)
 
@@ -14,22 +12,20 @@ SERPER_URL = "https://google.serper.dev/search"
 
 
 def web_search(query: str, num_results: int = 5) -> list[dict]:
-    """
-    Returns a list of dicts: [{"title": ..., "snippet": ..., "link": ...}, ...]
-    Returns [] if key is missing or request fails.
-    """
-    if not SERPER_API_KEY:
-        logger.warning("SERPER_API_KEY not set — web search skipped.")
+    # returns list of {title, snippet, link} or [] on failure
+    key = get_serper_key()
+    if not key:
+        logger.warning("SERPER_API_KEY not set, skipping web search")
         return []
     try:
         resp = requests.post(
             SERPER_URL,
-            headers={"X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json"},
+            headers={"X-API-KEY": key, "Content-Type": "application/json"},
             json={"q": query, "num": num_results},
             timeout=10,
         )
         resp.raise_for_status()
-        data   = resp.json()
+        data = resp.json()
         organic = data.get("organic", [])
         return [
             {
@@ -40,12 +36,11 @@ def web_search(query: str, num_results: int = 5) -> list[dict]:
             for r in organic[:num_results]
         ]
     except Exception as e:
-        logger.error(f"Web search error: {e}")
+        logger.error(f"web search failed: {e}")
         return []
 
 
 def format_search_results(results: list[dict]) -> str:
-    """Convert result list to a context block for the LLM."""
     if not results:
         return ""
     lines = ["Web search results:\n"]
@@ -55,10 +50,7 @@ def format_search_results(results: list[dict]) -> str:
 
 
 def should_search(query: str, history: list[dict]) -> bool:
-    """
-    Simple heuristic: search when the query looks like it needs fresh/external data.
-    You could swap this for an LLM-based router later.
-    """
+    # crude keyword check — good enough, could swap for an llm router later
     triggers = [
         "latest", "recent", "news", "today", "current", "2024", "2025",
         "price", "update", "law", "regulation", "case", "verdict",

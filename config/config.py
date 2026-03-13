@@ -26,7 +26,7 @@ TOP_K_RESULTS        = 4
 
 # app defaults
 DEFAULT_LLM          = "groq"
-DEFAULT_GROQ_MODEL   = "llama3-8b-8192"
+DEFAULT_GROQ_MODEL   = "llama-3.3-70b-versatile"
 DEFAULT_OPENAI_MODEL = "gpt-3.5-turbo"
 DEFAULT_GEMINI_MODEL = "gemini-1.5-flash"
 MAX_HISTORY          = 10

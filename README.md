@@ -74,16 +74,7 @@ project/
 
 ---
 
-## Deploying to Streamlit Cloud
 
-1. Push the repo to GitHub (make sure `.streamlit/secrets.toml` is in `.gitignore`).
-2. Go to https://share.streamlit.io → **New app** → pick your repo and `app.py`.
-3. Under **Advanced settings → Secrets**, paste your keys in TOML format:
-   ```toml
-   GROQ_API_KEY   = "gsk_..."
-   SERPER_API_KEY = "..."
-   ```
-4. Click **Deploy**. That's it.
 
 ---
 
